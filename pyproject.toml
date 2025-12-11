@@ -1,0 +1,32 @@
+[project]
+name = "digital-twin-rag"
+version = "0.1.0"
+description = "Open Source Digital Twin & RAG Agent for Electricity Maintenance"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "pypsa>=0.26.0",
+    "pandas>=2.2.0",
+    "pydantic>=2.6.0",
+    "transformers>=4.40.0",
+    "torch>=2.2.0",
+    "sentence-transformers>=2.5.0",
+    "qdrant-client>=1.7.0",
+    "jinja2>=3.1.0",
+    "python-multipart>=0.0.9",
+    "websockets>=12.0",
+    "netcdf4>=1.6.0",
+    "scipy>=1.12.0"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "httpx>=0.27.0"
+]
