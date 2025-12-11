@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: digital-twin-api
+    runtime: docker
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: ENABLE_REAL_LLM
+        value: "False" # Set to True if you have big RAM on Render (unlikely on free tier)
+      - key: QDRANT_URL
+        sync: false # User must provide their Qdrant Cloud URL in dashboard
+    healthCheckPath: /api/grid/status
+    autoDeploy: false
