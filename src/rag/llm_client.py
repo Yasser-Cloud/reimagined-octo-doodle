@@ -1,8 +1,15 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
 import os
 
-MODEL_ID = "LiquidAI/LFM2-1.2B-RAG" # Or local path
+# Lazy Imports for optional dependencies
+try:
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    import torch
+    _AI_AVAILABLE = True
+except ImportError:
+    _AI_AVAILABLE = False
+    print("LLM: 'transformers' or 'torch' not found. AI features will be Mocked.")
+
+MODEL_ID = "LiquidAI/LFM2-1.2B-RAG"
 
 class LLMClient:
     def __init__(self):
@@ -10,9 +17,12 @@ class LLMClient:
         self.tokenizer = None
         self.mock_mode = False
         
+        # Check availability
+        if not _AI_AVAILABLE:
+            self.mock_mode = True
+            return
+
         # Check if we should attempt loading (ENV VAR or Default)
-        # We default to MOCK for the demo unless explicitly configured, 
-        # to prevent 5GB download blocking the user immediately.
         if os.getenv("ENABLE_REAL_LLM", "False").lower() == "true":
             self._load_model()
         else:

@@ -1,17 +1,23 @@
 # Makefile
 
-.PHONY: help install run test lint format docker-build docker-up
+.PHONY: help install install-ai run test lint format docker-build docker-up clean
 
 help:
 	@echo "Available commands:"
-	@echo "  make install    - Install dependencies with uv"
+	@echo "  make install    - Install LITE dependencies (FastAPI + Digital Twin)"
+	@echo "  make install-ai - Install FULL dependencies (AI + RAG + Torch)"
+	@echo "  make clean      - Clean cache to free space"
 	@echo "  make run        - Run local dev server"
-	@echo "  make test       - Run tests with pytest"
-	@echo "  make lint       - Lint code (ruff/flake8)"
-	@echo "  make docker-up  - Run with Docker Compose"
 
 install:
 	uv sync
+
+install-ai:
+	uv sync --extra ai
+
+clean:
+	uv cache clean
+	rm -rf .venv
 
 run:
 	uv run uvicorn src.main:app --reload
@@ -21,12 +27,3 @@ test:
 
 lint:
 	uv run ruff check src/
-
-format:
-	uv run ruff format src/
-
-docker-build:
-	docker-compose build
-
-docker-up:
-	docker-compose up

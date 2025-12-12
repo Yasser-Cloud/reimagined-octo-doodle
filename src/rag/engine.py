@@ -1,13 +1,19 @@
 from src.rag.llm_client import llm_client
 from src.digital_twin.grid_model import grid_twin
 from src.digital_twin.asset_models import asset_manager
-from qdrant_client import QdrantClient
-from sentence_transformers import SentenceTransformer
 import os
+
+# Lazy Imports
+try:
+    from qdrant_client import QdrantClient
+    from sentence_transformers import SentenceTransformer
+    _RAG_AVAILABLE = True
+except ImportError:
+    _RAG_AVAILABLE = False
+    print("RAG: 'qdrant-client' or 'sentence-transformers' not found. Vector Search disabled.")
 
 # Qdrant Config
 QDRANT_URL = os.getenv("QDRANT_URL", "http://qdrant:6333") 
-# Note: Inside Docker it uses service name 'qdrant', logic to fallback to localhost if outside
 if os.getenv("APP_ENV") != "production":
    QDRANT_URL = "http://localhost:6333"
 
@@ -16,12 +22,14 @@ class RAGEngine:
         self.client = None
         self.embedder = None
         self.collection_name = "manuals"
-        try:
-            self.client = QdrantClient(url=QDRANT_URL)
-            # Lazy load embedder to save startup time if not needed immediately
-            self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
-        except Exception as e:
-            print(f"RAG Warning: Qdrant/Embedder init failed ({e})")
+        
+        if _RAG_AVAILABLE:
+            try:
+                self.client = QdrantClient(url=QDRANT_URL)
+                # Lazy load embedder to save startup time
+                self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
+            except Exception as e:
+                print(f"RAG Warning: Qdrant/Embedder init failed ({e})")
 
     def process_query(self, query: str):
         """
