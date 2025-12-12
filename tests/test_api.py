@@ -23,3 +23,16 @@ def test_chat_endpoint_mock():
     data = response.json()
     assert "response" in data
     assert len(data["response"]) > 0
+
+def test_trigger_simulation():
+    # Test anomaly injection
+    response = client.post("/api/grid/simulate?scenario=overload")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "Anomaly Injected"
+    assert data["scenario"] == "overload"
+    
+    # Verify it actually affected the grid (optional, might be race condition if checking immediately, 
+    # but the twin updates synchronously on access usually? No, it ticks in background now.)
+    # Let's just check the response for now.
+
