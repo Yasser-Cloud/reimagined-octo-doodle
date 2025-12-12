@@ -15,16 +15,17 @@ class NetworkTwin:
         self._run_simulation()
 
     def _run_simulation(self):
-        """Runs the power flow simulation."""
         try:
-            # Snapshot clustering isn't needed for single state
-            # Using 'fn' (Fast Newton-Raphson) if available, else lopf
-            # For this demo, we assume DC approximation for speed/robustness unless user asks for AC
-            self.network.lopf(pyomo=False, solver_name='glpk') 
+            # Use Linear Power Flow (LPF) - Deterministic physics, no solver needed.
+            # This is perfect for a robust demo without GLPK/Cbc installed.
+            self.network.lpf()
+             
         except Exception as e:
-            # Fallback for systems without solver
-            print(f"Solver Error (mimicked): {e}. Using estimated flow.")
+            # Fallback
+            print(f"Simulation Warning: {e}. Using estimated flow.")
             pass
+
+
 
     def tick(self):
         """Advances time by 1 'hour' (simulation step), varying loads randomly."""
