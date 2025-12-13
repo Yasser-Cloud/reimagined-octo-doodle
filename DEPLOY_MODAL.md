@@ -25,6 +25,13 @@ Prerequisite: `uv` installed.
 1.  Go to your Render Dashboard -> Environment Variables.
 2.  Add a new Variable:
     *   **Key**: `MODAL_URL`
-    *   **Value**: (The URL you got from step 1)
+    *   **Value**: (The URL you got from the previous step)
 
-**That's it!** Your app on Render will now send prompts to the GPU on Modal, getting you high-performance AI responses for pennies.
+## 3. Deployment Lifecycle (FAQ)
+*   **Where do I run these commands?**
+    Run them inside your current **Codespace** (or local terminal).
+*   **Can I delete my Codespace afterwards?**
+    **YES.** Once you run `make deploy-ai`, your code is uploaded to **Modal's Cloud**. It runs there independently. Your Codespace is just the "launcher". You can delete it, and the AI URL will keep working forever.
+*   **What if I need to update the AI code?**
+    You will need to open a new Codespace (or terminal), pull the code, and run `make deploy-ai` again.
+
