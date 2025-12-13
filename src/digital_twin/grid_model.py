@@ -2,6 +2,11 @@ import pypsa
 from src.digital_twin.station_scenario import create_substation_alpha
 import pandas as pd
 import random
+import logging
+
+# Suppress verbose PyPSA output
+logging.getLogger("pypsa").setLevel(logging.WARNING)
+
 
 class NetworkTwin:
     def __init__(self):
@@ -96,8 +101,8 @@ class NetworkTwin:
     def inject_anomaly(self, anomaly_type: str):
         """Simulate a breakage."""
         if anomaly_type == "overload":
-            # Massive spike on Industrial Load
-            self.network.loads.at["Load_Industrial", "p_set"] = 25.0 
+            # Massive spike on Industrial Load (was 25, now 50 to guarantee >100% of 40MVA)
+            self.network.loads.at["Load_Industrial", "p_set"] = 50.0 
             # Lock this state for 20 ticks (seconds) so the user sees it
             self.anomaly_timer = 20
             self._run_simulation()
