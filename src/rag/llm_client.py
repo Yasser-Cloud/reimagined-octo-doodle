@@ -1,4 +1,5 @@
 import os
+import requests
 
 # Lazy Imports for optional dependencies
 try:
@@ -74,7 +75,6 @@ class LLMClient:
 
     def _call_modal(self, url, context, query):
         """Calls the serverless Modal endpoint."""
-        import requests 
         # Note: requests must be installed. It usually is, but let's be safe.
         prompt = f"System: {context}\nUser: {query}\nAssistant:"
         try:

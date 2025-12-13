@@ -5,7 +5,7 @@ def test_network_twin_initialization():
     twin = NetworkTwin()
     assert twin.network is not None
     # Check if we have our specific assets
-    assert "T1_Transformer" in twin.network.links.index
+    assert "T1_Transformer" in twin.network.transformers.index
     assert "HV_Grid_Bus" in twin.network.buses.index
 
 def test_network_power_flow():
