@@ -7,6 +7,7 @@ class NetworkTwin:
     def __init__(self):
         self.network = create_substation_alpha()
         self.time_step = 0
+        self.anomaly_timer = 0
         
         # Initialize simulation physics
         # We use Linear Optimal Power Flow (LOPF) for robust solving or Newton-Raphson
@@ -30,6 +31,14 @@ class NetworkTwin:
     def tick(self):
         """Advances time by 1 'hour' (simulation step), varying loads randomly."""
         self.time_step += 1
+        
+        # Handle Anomaly Duration
+        if self.anomaly_timer > 0:
+            self.anomaly_timer -= 1
+            # If anomaly is active, we SKIP the normal load update logic 
+            # to prevent overwriting the "Event".
+            self._run_simulation()
+            return
         
         # Simulate Day/Night Cycle effect + Random Noise
         base_load_profile = [0.4, 0.3, 0.3, 0.4, 0.6, 0.8, 0.9, 0.9, 0.8, 0.7, 0.5, 0.4] # Simplified
@@ -85,7 +94,10 @@ class NetworkTwin:
     def inject_anomaly(self, anomaly_type: str):
         """Simulate a breakage."""
         if anomaly_type == "overload":
-            self.network.loads.at["Load_Industrial", "p_set"] = 25.0 # Massive spike
+            # Massive spike on Industrial Load
+            self.network.loads.at["Load_Industrial", "p_set"] = 25.0 
+            # Lock this state for 20 ticks (seconds) so the user sees it
+            self.anomaly_timer = 20
             self._run_simulation()
 
 grid_twin = NetworkTwin() # Singleton instance
