@@ -30,11 +30,14 @@ def create_substation_alpha():
                 control="Slack") # Maintains voltage/frequency
 
     # 3. Add Main Transformer (The Critical Asset)
-    network.add("Link", "T1_Transformer",
+    # 3. Add Main Transformer (The Critical Asset)
+    # Changed from Link to Transformer to support Linear Power Flow (LPF)
+    network.add("Transformer", "T1_Transformer",
                 bus0="HV_Grid_Bus",
                 bus1="MV_Station_Bus",
-                p_nom=40.0, # 40 MVA Rating
-                efficiency=0.98) # 2% Losses
+                s_nom=40.0, # 40 MVA Rating (s_nom for transformers)
+                x=0.1, r=0.01) # Reactance/Resistance for physics calc
+
 
     # 4. Add Feeders (Lines)
     # Modeled as typical 20kV underground cables

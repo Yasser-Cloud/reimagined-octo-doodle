@@ -75,8 +75,10 @@ class NetworkTwin:
         try:
             # Approximate Flow calc since lopf might need solver
             # We'll trust PyPSA result columns if populated
-            t_flow = abs(self.network.links.p0.loc["T1_Transformer"])
-            t_nom = self.network.links.p_nom.loc["T1_Transformer"]
+            # For Transformer, lpf results are in transformers_t.p0 (Time-series)
+            # We take the value for snapshot "now"
+            t_flow = abs(self.network.transformers_t.p0.loc["now", "T1_Transformer"])
+            t_nom = self.network.transformers.s_nom.loc["T1_Transformer"] # s_nom for transformers
             loading = (t_flow / t_nom) * 100.0
             status["transformer_loading_percent"] = round(loading, 2)
             
