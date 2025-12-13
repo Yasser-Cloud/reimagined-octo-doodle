@@ -97,7 +97,8 @@
 
     <script>
         // --- 1. LIVE DATA POLLING ---
-        const ws = new WebSocket(`ws://${location.host}/api/ws/live`);
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${protocol}//${location.host}/api/ws/live`);
         
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);

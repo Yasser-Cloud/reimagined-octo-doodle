@@ -89,10 +89,10 @@ class LLMClient:
 
         """Simple rule-based fallback for demo purposes."""
         query = query.lower()
-        if "status" in query or "load" in query:
-            if "Critical" in context:
-                return "Based on the live twin data, I detected a CRITICAL issue. The Transformer T1 is overloaded. We advise immediate load shedding."
-            return "The station is currently operating within normal parameters. Transformer load is steady."
-        return "I am the Digital Twin Assistant. I can help you monitor asset health and grid status."
+        if any(w in query for w in ["status", "load", "happen", "wrong", "issue", "alert", "problem"]):
+            if "Critical" in context or "WARNING" in context:
+                return f"CRITICAL ALERT: Based on live sensors, I see a major issue. \n\n{context}\n\nRecommendation: Check the manual immediately."
+            return f"System Normal. \n{context}\n\nAll assets are within safe operating limits."
+        return "I am the Digital Twin Assistant. Ask me 'What is the status?' or 'Is there an issue?' to check the grid."
 
 llm_client = LLMClient()
