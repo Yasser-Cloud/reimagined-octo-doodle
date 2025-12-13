@@ -59,7 +59,7 @@ class Model:
 
 # 4. Web Endpoint: The Interface for our Render App
 @app.function(image=image)
-@modal.web_endpoint(method="POST")
+@modal.fastapi_endpoint(method="POST")
 def api_generate(item: QueryRequest):
     """
     HTTP Endpoint reachable from anywhere (e.g. Render).
