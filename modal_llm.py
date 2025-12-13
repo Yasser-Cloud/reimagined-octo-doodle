@@ -18,7 +18,7 @@ def download_model():
 # Define the container image with dependencies and build step
 image = (
     modal.Image.debian_slim()
-    .pip_install("torch", "transformers", "accelerate", "pydantic")
+    .pip_install("torch", "transformers", "accelerate", "pydantic", "fastapi")
     .run_function(download_model)
 )
 
