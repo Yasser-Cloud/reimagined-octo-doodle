@@ -45,21 +45,20 @@ class LLMClient:
 
     def generate_response(self, system_context: str, user_query: str) -> str:
         """
-        Generates a response using the LLM or Mock.
+        Generates a response using the LLM (Modal, Local, or Mock).
         """
-        prompt = f"""
-        [System Context]
-        {system_context}
-        
-        [User Query]
-        {user_query}
-        
-        [Response]
-        """
-        
+        # 1. Check for Modal (Prioritized)
+        modal_url = os.getenv("MODAL_URL")
+        if modal_url and modal_url.startswith("http"):
+            return self._call_modal(modal_url, system_context, user_query)
+
+        # 2. Mock Mode
         if self.mock_mode:
             return self._mock_response(user_query, system_context)
             
+        # 3. Local Model (CPU/GPU)
+        prompt = f"<|im_start|>system\n{system_context}<|im_end|>\n<|im_start|>user\n{user_query}<|im_end|>\n<|im_start|>assistant\n"
+        
         try:
             inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
             outputs = self.model.generate(
@@ -69,13 +68,25 @@ class LLMClient:
                 do_sample=True
             )
             response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            # Simple cleanup to extract just the response part if the model repeats prompt
-            response = response.split("[Response]")[-1].strip()
-            return response
+            return response.split("assistant")[-1].strip()
         except Exception as e:
             return f"Error generating response: {e}"
 
+    def _call_modal(self, url, context, query):
+        """Calls the serverless Modal endpoint."""
+        import requests 
+        # Note: requests must be installed. It usually is, but let's be safe.
+        prompt = f"System: {context}\nUser: {query}\nAssistant:"
+        try:
+            res = requests.post(url, json={"prompt": prompt}, timeout=30)
+            if res.status_code == 200:
+                return res.json().get("response", "Error: No response field")
+            return f"Modal Error {res.status_code}: {res.text}"
+        except Exception as e:
+            return f"Modal Connection Failed: {e}"
+
     def _mock_response(self, query, context):
+
         """Simple rule-based fallback for demo purposes."""
         query = query.lower()
         if "status" in query or "load" in query:

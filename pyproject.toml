@@ -34,10 +34,9 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "pytest>=8.0.0",
-    "httpx>=0.27.0"
+    "httpx>=0.27.0",
+    "modal>=0.60.0"
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
-
-

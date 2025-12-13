@@ -15,7 +15,11 @@ install:
 install-ai:
 	uv sync --extra ai
 
+deploy-ai:
+	uv run modal deploy modal_llm.py
+
 clean:
+
 	uv cache clean
 	rm -rf .venv
 
