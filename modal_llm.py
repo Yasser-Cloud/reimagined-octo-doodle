@@ -4,10 +4,22 @@ from pydantic import BaseModel
 # Defines the Modal App
 app = modal.App("digital-twin-llm")
 
-# Define the container image with dependencies
+def download_model():
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    # Using LiquidAI/LFM2-1.2B-RAG
+    model_id = "LiquidAI/LFM2-1.2B-RAG" 
+    print(f"Downloading {model_id}...")
+    try:
+        AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True)
+        AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+    except Exception as e:
+        print(f"Build Warning: {e}")
+
+# Define the container image with dependencies and build step
 image = (
     modal.Image.debian_slim()
     .pip_install("torch", "transformers", "accelerate")
+    .run_function(download_model)
 )
 
 # Request Model
@@ -15,20 +27,9 @@ class QueryRequest(BaseModel):
     prompt: str
 
 # The GPU Class
-@app.cls(image=image, gpu="T4", container_idle_timeout=300)
+# Updated container_idle_timeout -> scaledown_window (Modal 1.0)
+@app.cls(image=image, gpu="T4", scaledown_window=300)
 class Model:
-    # 1. Build Step: Downloads model weights into the image (cached)
-    @modal.build()
-    def download_model(self):
-        from transformers import AutoModelForCausalLM, AutoTokenizer
-        model_id = "LiquidAI/LFM2-1.2B-RAG" 
-        print(f"Downloading {model_id}...")
-        try:
-            AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True)
-            AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
-        except Exception as e:
-            print(f"Build Warning: {e}")
-
     # 2. Startup: Loads model into GPU memory
     @modal.enter()
     def setup(self):
@@ -43,7 +44,6 @@ class Model:
             device_map="auto",
             trust_remote_code=True
         )
-
 
     # 3. Method: The Generation Logic
     @modal.method()
