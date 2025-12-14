@@ -28,7 +28,7 @@ class QueryRequest(BaseModel):
 
 # The GPU Class
 # Updated container_idle_timeout -> scaledown_window (Modal 1.0)
-@app.cls(image=image, gpu="T4", scaledown_window=300)
+@app.cls(image=image, gpu="T4", scaledown_window=90)
 class Model:
     # 2. Startup: Loads model into GPU memory
     @modal.enter()
